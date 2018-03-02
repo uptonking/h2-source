@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import org.h2.Driver;
 import org.h2.api.ErrorCode;
 import org.h2.engine.Constants;
@@ -62,8 +63,13 @@ public class TcpServer implements Service {
     private boolean stop;
     private ShutdownHandler shutdownHandler;
     private ServerSocket serverSocket;
+
+    /**
+     * 线程安全的set
+     */
     private final Set<TcpServerThread> running =
             Collections.synchronizedSet(new HashSet<TcpServerThread>());
+
     private String baseDir;
     private boolean allowOthers;
     private boolean isDaemon;
@@ -132,8 +138,8 @@ public class TcpServer implements Service {
     /**
      * Add a connection to the management database.
      *
-     * @param id the connection id
-     * @param url the database URL
+     * @param id   the connection id
+     * @param url  the database URL
      * @param user the user name
      */
     //在org.h2.server.TcpServerThread.run()中调用，
@@ -241,7 +247,7 @@ public class TcpServer implements Service {
         try {
             serverSocket = NetUtils.createServerSocket(port, ssl);
         } catch (DbException e) {
-        	//如果启动时没有指定参数-tcpPort，那么在端口被占用时自动选择其他端口，否则直接抛异常
+            //如果启动时没有指定参数-tcpPort，那么在端口被占用时自动选择其他端口，否则直接抛异常
             if (!portIsSet) {
                 serverSocket = NetUtils.createServerSocket(0, ssl);
             } else {
@@ -254,12 +260,15 @@ public class TcpServer implements Service {
 
     @Override
     public void listen() {
-    	//在org.h2.tools.Server.start()中的service.getName() + " (" + service.getURL() + ")";
-    	//listener线程名是: H2 TCP Server (tcp://localhost:9092)
+
+        //在org.h2.tools.Server.start()中的service.getName() + " (" + service.getURL() + ")";
+        //listener线程名是: H2 TCP Server (tcp://localhost:9092)
         listenerThread = Thread.currentThread();
         String threadName = listenerThread.getName();
         try {
             while (!stop) {
+
+                //接收外来的sql请求
                 Socket s = serverSocket.accept();
                 //s.setSoTimeout(2000); //我加上的
                 TcpServerThread c = new TcpServerThread(s, this, nextThreadId++);
@@ -268,6 +277,9 @@ public class TcpServer implements Service {
                 Thread thread = new Thread(c, threadName + " thread");
                 thread.setDaemon(isDaemon);
                 c.setThread(thread);
+
+                // 新线程TcpServerThread正式运行,初始化客户端传过来的连接信息，
+                // 及循环通过org.h2.server.TcpServerThread.process()方法根据不同的sql请求类型（如：update，select，或其它请求类型）去处理sql语句及请求
                 thread.start();
             }
             serverSocket = NetUtils.closeSilently(serverSocket);
@@ -278,7 +290,7 @@ public class TcpServer implements Service {
         }
         stopManagementDb();
     }
-    
+
     //测试是否在本地连得上TcpServer，此时listen()已经执行了
     //这个方法会触发建立一个TcpServerThread，
     //不过很快就关掉了，因为没有建立Session对象，也没在SESSIONS表中存入记录。
@@ -343,8 +355,8 @@ public class TcpServer implements Service {
      * Stop a running server. This method is called via reflection from the
      * STOP_SERVER function.
      *
-     * @param port the port where the server runs, or 0 for all running servers
-     * @param password the password (or null)
+     * @param port         the port where the server runs, or 0 for all running servers
+     * @param password     the password (or null)
      * @param shutdownMode the shutdown mode, SHUTDOWN_NORMAL or SHUTDOWN_FORCE.
      */
     //通过类似这样CALL STOP_SERVER(9092, '', 0)就能关闭H2数据库，见my.test.server.TcpServerTest
@@ -407,6 +419,7 @@ public class TcpServer implements Service {
             System.out.println(s);
         }
     }
+
     /**
      * Print a stack trace if the trace flag is enabled.
      *
@@ -440,14 +453,14 @@ public class TcpServer implements Service {
     /**
      * Stop the TCP server with the given URL.
      *
-     * @param url the database URL
+     * @param url      the database URL
      * @param password the password
-     * @param force if the server should be stopped immediately
-     * @param all whether all TCP servers that are running in the JVM should be
-     *            stopped
+     * @param force    if the server should be stopped immediately
+     * @param all      whether all TCP servers that are running in the JVM should be
+     *                 stopped
      */
     public static synchronized void shutdown(String url, String password,
-            boolean force, boolean all) throws SQLException {
+                                             boolean force, boolean all) throws SQLException {
         try {
             int port = Constants.DEFAULT_TCP_PORT;
             int idx = url.lastIndexOf(':');
@@ -501,7 +514,7 @@ public class TcpServer implements Service {
     /**
      * Cancel a running statement.
      *
-     * @param sessionId the session id
+     * @param sessionId   the session id
      * @param statementId the statement id
      */
     void cancelStatement(String sessionId, int statementId) {
