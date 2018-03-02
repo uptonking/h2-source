@@ -1,32 +1,22 @@
-## 项目用途
+# H2 Database source code learning
+forked from [codefollower/H2-Research](https://github.com/codefollower/H2-Research)  
 
 [H2数据库](http://www.h2database.com/html/main.html)源代码学习研究(包括代码注释、文档、用于代码分析的测试用例)
 
+## todo
 
-## 目录结构
-
-* my-docs: 综合文档
-
-* my-test: 用于代码分析的测试用例
-
-* h2: H2数据库的最新源代码，在源代码中附加了便于分析理解代码的注释
-
-
-## 导入项目
-
-* 打开Eclipse，选择File -> Import -> Existing Projects into Workspace
-
+- [ ] 序列化存储格式   
+- [ ] SQL解析 
 
 ## 运行或调试H2
 
-* 右击h2/test/my/test/MyServer.java文件，点Run As或Debug As -> Java Application
-
-* 如果出现"TCP server running ..."这样的提示就ok啦
+- my/test/MyServer.java文件  
+直接执行main()方法
 
 
 ## 测试
 
-* my.test包中的类几乎都可直接运行
+- my.test包中的类几乎都可直接运行
 
 
 # Welcome to H2, the Java SQL database. [![Build Status](https://travis-ci.org/h2database/h2database.svg?branch=master)](https://travis-ci.org/h2database/h2database)

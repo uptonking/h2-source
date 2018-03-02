@@ -1,3 +1,7 @@
+
+lib/
+dbfile2018/
+
 *.class
 target
 data
