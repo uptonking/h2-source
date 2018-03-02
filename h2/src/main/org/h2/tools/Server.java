@@ -23,6 +23,7 @@ import org.h2.util.Utils;
 
 /**
  * h2服务器的启动类
+ * 管理各种服务器的开启、停止
  * <p>
  * Starts the H2 Console (web-) server, TCP, and PG server.
  *
@@ -210,8 +211,13 @@ public class Server extends Tool implements Runnable, ShutdownHandler {
         }
     }
 
+    /**
+     * 先设置一些默认启动参数，然后根据传入的args修改这些默认参数，
+     * 最后按顺序启动webserver，browser，tcpserver和pgserver
+     */
     @Override
     public void runTool(String... args) throws SQLException {
+
         boolean tcpStart = false, pgStart = false, webStart = false;
         boolean browserStart = false;
         boolean tcpShutdown = false, tcpShutdownForce = false;
@@ -294,6 +300,7 @@ public class Server extends Tool implements Runnable, ShutdownHandler {
             }
         }
         verifyArgs(args);
+
         if (startDefaultServers) {
             tcpStart = true;
             pgStart = true;

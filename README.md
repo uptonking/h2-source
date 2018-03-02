@@ -5,8 +5,17 @@ forked from [codefollower/H2-Research](https://github.com/codefollower/H2-Resear
 
 ## todo
 
-- [ ] 序列化存储格式   
+- [ ] 存储结构   
+- [ ] 索引结构   
+- [ ] 关系管理   
+- [ ] 扩容处理   
 - [ ] SQL解析 
+- [ ] join实现 
+- [ ] 查询计划 
+- [ ] 事务管理、回滚、ACID  
+- [ ] 并发控制  
+- [ ] jdbc驱动  
+- [ ] 网络io、复制、同步  
 
 ## 运行或调试H2
 
